@@ -10,7 +10,7 @@ BiocManager::install("Dune")
 
 addArchRGenome("hg38")
 
-inputFiles <- "/home/ferry/Documents/University/end_of_summer_project/data/pbmc_unsorted_10k_atac_fragments.tsv.gz"
+inputFiles <- "data/pbmc_unsorted_10k_atac_fragments.tsv.gz"
 names(inputFiles) <- "PBMC_10k"
 
 ArrowFiles <- createArrowFiles(
@@ -25,7 +25,7 @@ ArrowFiles <- createArrowFiles(
 proj <- ArchRProject(ArrowFiles)
 
 seRNA <- import10xFeatureMatrix(
-  input = c("/home/ferry/Documents/University/end_of_summer_project/data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5"),
+  input = c("data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5"),
   names = c("PBMC_10k")
 )
 
@@ -48,4 +48,4 @@ minFrags <- 1200
 
 proj <- proj[proj$TSSEnrichment > minTSS & proj$nFrags > minFrags]
 
-saveArchRProject(ArchRProj = proj, outputDirectory = "atac-rna-quality-controlled", load = FALSE)
+saveArchRProject(ArchRProj = proj, outputDirectory = "saves/atac-rna-quality-controlled", load = FALSE)

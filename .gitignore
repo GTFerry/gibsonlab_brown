@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+data/
 *.arrow
 saves/
 ArchRLogs/

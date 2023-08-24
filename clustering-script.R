@@ -1,4 +1,4 @@
-proj <- loadArchRProject(path = "atac-rna-quality-controlled")
+proj <- loadArchRProject(path = "saves/atac-rna-quality-controlled")
 
 elapsedTime <- function(difference) {
   total_secs <- as.numeric(difference, units = "secs")
