@@ -1,7 +1,8 @@
 ---
 env---
 title: "Analysis Notebook"
-output: html_notebook
+output:
+  html_notebook
 ---
 
 # Loading Libraries
@@ -21,7 +22,7 @@ addArchRGenome("hg38")
 ## Create Arrow Object
 
 ```{r}
-inputFiles <- "/home/ferry/Documents/University/end_of_summer_project/data/pbmc_unsorted_10k_atac_fragments.tsv.gz"
+inputFiles <- "data/pbmc_unsorted_10k_atac_fragments.tsv.gz"
 names(inputFiles) <- "PBMC_10k"
 
 ArrowFiles <- createArrowFiles(
@@ -107,7 +108,7 @@ plot_clusters_confusion_matrix <- function(proj) {
 ## RNA QC
 
 ```{r}
-pbmc.data <- Read10X_h5("/home/ferry/Documents/University/end_of_summer_project/data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5", unique.features = TRUE)
+pbmc.data <- Read10X_h5("data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5", unique.features = TRUE)
 
 pbmc <- CreateSeuratObject(counts = pbmc.data$`Gene Expression`, project = "pbmc10k")
 ```
@@ -142,9 +143,9 @@ rm(pbmc.data)
 
 ## Integrating RNA
 
-```{r}
+# ```{r}
 seRNA <- import10xFeatureMatrix(
-    input = c("/home/ferry/Documents/University/end_of_summer_project/data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5"),
+    input = c("data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5"),
     names = c("PBMC_10k")
 )
 
