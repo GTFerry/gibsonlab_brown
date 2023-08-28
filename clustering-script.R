@@ -1,3 +1,7 @@
+library(ArchR)
+library(Seurat)
+library(Dune)
+
 proj <- loadArchRProject(path = "saves/atac-rna-quality-controlled")
 
 elapsedTime <- function(difference) {
