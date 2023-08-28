@@ -264,10 +264,10 @@ testClusters <- function(proj, resolutions_ATAC, resolutions_RNA,
 
 proj <- testClusters(
   proj,
-  resolutions_ATAC = c(0.2, 0.3), 
-  resolutions_RNA = c(0.2, 0.3), 
-  iterationsList = c(5, 5), 
-  dimsList = c(10, 15),
+  resolutions_ATAC = c(0.2, 0.3, 0.5, 0.75, 1.0, 1.25, 1.5),
+  resolutions_RNA = c(0.2, 0.3, 0.5, 0.75, 1.0, 1.25, 1.5),
+  iterationsList = c(7, 7, 7, 7, 7, 7, 7),
+  dimsList = c(15, 15, 15, 15, 15, 15, 15),
   verbosity = 2
 )
 
