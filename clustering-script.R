@@ -4,6 +4,8 @@ library(Dune)
 
 proj <- loadArchRProject(path = "saves/atac-rna-quality-controlled")
 
+results_dir <- "results/"
+
 elapsedTime <- function(difference) {
   total_secs <- as.numeric(difference, units = "secs")
   hours <- as.integer(total_secs %/% 3600)
@@ -64,7 +66,7 @@ testClusters <- function(proj, resolutions_ATAC, resolutions_RNA,
   colnames(first_col) <- "Cell Index"
   
   # Write the dataframe to a CSV file
-  write.csv(first_col, file = "ClusterAssignments.csv", row.names = FALSE)
+  write.csv(first_col, file = paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names = FALSE)
   
   plots <- list()
   clusterAssignments <- data.frame(cellBarcode = getCellNames(proj))
@@ -185,7 +187,7 @@ testClusters <- function(proj, resolutions_ATAC, resolutions_RNA,
     if (!writeLogs) {
       sink(logFile, append=TRUE)
     }
-    
+
     proj <- addUMAP(
       proj,
       reducedDims = ATAC_LSI_name,
@@ -193,7 +195,7 @@ testClusters <- function(proj, resolutions_ATAC, resolutions_RNA,
       minDist = 0.8,
       force = TRUE
     )
-    
+
     proj <- addUMAP(
       proj,
       reducedDims = RNA_LSI_name,
@@ -201,7 +203,7 @@ testClusters <- function(proj, resolutions_ATAC, resolutions_RNA,
       minDist = 0.8,
       force = TRUE
     )
-    
+
     proj <- addUMAP(
       proj,
       reducedDims = COMB_LSI_name,
@@ -209,21 +211,21 @@ testClusters <- function(proj, resolutions_ATAC, resolutions_RNA,
       minDist = 0.8,
       force = TRUE
     )
-    
+
     if (!writeLogs) {
       sink()
     }
-    
+
     cluster_name <- paste0("Cluster_", i, "_ResRNA_", gsub("\\.", "-", as.character(res_RNA)), "_ResATAC_", gsub("\\.", "-", as.character(res_ATAC)), "_Iters_", iters, "_Dims_1to", dims)
-    
+
     if(verbosity >= 2){
       cat(strftime(Sys.time(), format="%Y-%m-%d %H:%M:%S"), "- Saving clusters with name:", cluster_name, "\n")
     }
-    
+
     if (!writeLogs) {
       sink(logFile, append = TRUE)
     }
-    
+
     # TODO: check assumption of resolution here
     proj <- addClusters(
       proj,
@@ -232,47 +234,55 @@ testClusters <- function(proj, resolutions_ATAC, resolutions_RNA,
       resolution = (res_ATAC + res_RNA)/2,
       force = TRUE
     )
-    
+
     if (!writeLogs) {
       sink()
     }
-    
+
     if(verbosity >= 1){
       cat(strftime(Sys.time(), format="%Y-%m-%d %H:%M:%S"), "- Saving cluster assignments to CSV\n")
     }
-    
+
     currentClusteringLabels <- data.frame(proj@cellColData@listData[[cluster_name]])
-    
+
     colnames(currentClusteringLabels) <- c(cluster_name)
-    
+
     # View(currentClusteringLabels)
-    
-    appendToCSV(currentClusteringLabels, "ClusterAssignments.csv")
-    
+
+    appendToCSV(currentClusteringLabels, paste(results_dir, "ClusterAssignments.csv", sep = ""))
+
     if(verbosity >= 1){
       cat(strftime(Sys.time(), format="%Y-%m-%d %H:%M:%S"), "- Finished iteration", i, "\n")
     }
   }
-  
+
   if(verbosity >= 1) {
     difference <- Sys.time() - start_time
     cat(strftime(Sys.time(), format="%Y-%m-%d %H:%M:%S"), "- Finished Loops, total time: ", elapsedTime(difference), "\n")
   }
-  
+
   return(proj)
 }
 
+input_data <- read.csv("input.csv")
+
+resolutions_ATAC_csv <- input_data$resolutions_ATAC
+resolutions_RNA_csv  <- input_data$resolutions_RNA
+iterationsList_csv   <- input_data$iterationsList
+dimsList_csv         <- input_data$dimsList
+
 proj <- testClusters(
   proj,
-  resolutions_ATAC = c(0.2, 0.3, 0.5, 0.75, 1.0, 1.25, 1.5),
-  resolutions_RNA = c(0.2, 0.3, 0.5, 0.75, 1.0, 1.25, 1.5),
-  iterationsList = c(7, 7, 7, 7, 7, 7, 7),
-  dimsList = c(15, 15, 15, 15, 15, 15, 15),
-  verbosity = 2
+  resolutions_ATAC = resolutions_ATAC_csv,
+  resolutions_RNA  = resolutions_RNA_csv,
+  iterationsList   = iterationsList_csv,
+  dimsList         = dimsList_csv,
+  verbosity        = 2
 )
 
+merger <- read.csv(paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names=1)
 
-merger <- read.csv("ClusterAssignments.csv", row.names=1)
+saveArchRProject(ArchRProj = proj, outputDirectory = "saves/clustered", load = FALSE)
 
 ### ALL Plotted Together ###
 # plot ARIs as barplot
