@@ -282,25 +282,37 @@ proj <- testClusters(
 
 saveArchRProject(ArchRProj = proj, outputDirectory = "saves/clustered", load = FALSE)
 
+print("Starting Dune Merging")
+
 merger <- read.csv(paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names=1)
+
+print(head(merger))
+
+print("Read File")
 
 ### ALL Plotted Together ###
 # plot ARIs as barplot
 getARIs <- ARIs(merger)
 
+print("Got ARIs")
 sumdata=data.frame(value=apply(getARIs,2,mean))
 sumdata$key=rownames(sumdata)
 
 # save plots
-pdf(file = "RandIndex_heatmap_all_before.pdf", height = 15, width = 15)
+pdf(file = "RandIndex_heatmap_report.pdf", height = 15, width = 15)
 plotARIs(clusMat = merger) + RotatedAxis()
 dev.off()
 
-merger <- Dune(clusMat = merger, verbose = TRUE)
-pdf(file = "RandIndex_heatmap_all_after.pdf", height = 15, width = 15)
-plotARIs(clusMat = merger)
-dev.off()
+# print("Plotting Before ARI")
+# print("Merging")
+merger <- Dune(clusMat = merger, verbose = FALSE)
+# print("Merged")
+# pdf(file = "RandIndex_heatmap_all_after.pdf", height = 15, width = 15)
+plotARIs(clusMat = merger$currentMat) + RotatedAxis()
+# dev.off()
 
-pdf(file = "RandIndex_before_after_clusters.pdf", height = 15, width = 15)
+# print("Plotting After ARI")
+
+# pdf(file = "RandIndex_before_after_clusters.pdf", height = 15, width = 15)
 plotPrePost(merger)
 dev.off()
