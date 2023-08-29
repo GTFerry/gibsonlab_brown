@@ -301,18 +301,14 @@ sumdata$key=rownames(sumdata)
 # save plots
 pdf(file = "RandIndex_heatmap_report.pdf", height = 15, width = 15)
 plotARIs(clusMat = merger) + RotatedAxis()
-dev.off()
+title("Plot Before ARI Merging (Dune)")
 
-# print("Plotting Before ARI")
-# print("Merging")
 merger <- Dune(clusMat = merger, verbose = FALSE)
-# print("Merged")
-# pdf(file = "RandIndex_heatmap_all_after.pdf", height = 15, width = 15)
 plotARIs(clusMat = merger$currentMat) + RotatedAxis()
-# dev.off()
+title("Plot After ARI Merging (Dune)")
 
-# print("Plotting After ARI")
-
-# pdf(file = "RandIndex_before_after_clusters.pdf", height = 15, width = 15)
 plotPrePost(merger)
+title("Cluster Change in each clustering Method")
 dev.off()
+
+# TODO: for each clustering method, plot dotplot and actual cluster shape
