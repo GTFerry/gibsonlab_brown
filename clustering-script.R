@@ -280,9 +280,9 @@ proj <- testClusters(
   verbosity        = 2
 )
 
-merger <- read.csv(paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names=1)
-
 saveArchRProject(ArchRProj = proj, outputDirectory = "saves/clustered", load = FALSE)
+
+merger <- read.csv(paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names=1)
 
 ### ALL Plotted Together ###
 # plot ARIs as barplot
@@ -292,8 +292,15 @@ sumdata=data.frame(value=apply(getARIs,2,mean))
 sumdata$key=rownames(sumdata)
 
 # save plots
-pdf(file = "RandIndex_heatmap_all.pdf", height = 15, width = 15)
+pdf(file = "RandIndex_heatmap_all_before.pdf", height = 15, width = 15)
 plotARIs(clusMat = merger) + RotatedAxis()
 dev.off()
 
-pdf(file = "RandIndex_barplot_all.pdf", height = 8, width = 8)
+merger <- Dune(clusMat = merger, verbose = TRUE)
+pdf(file = "RandIndex_heatmap_all_after.pdf", height = 15, width = 15)
+plotARIs(clusMat = merger)
+dev.off()
+
+pdf(file = "RandIndex_before_after_clusters.pdf", height = 15, width = 15)
+plotPrePost(merger)
+dev.off()
