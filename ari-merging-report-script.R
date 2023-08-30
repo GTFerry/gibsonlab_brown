@@ -9,7 +9,7 @@ proj <- loadArchRProject(path = "saves/clustered")
 print("Starting Dune Merging")
 
 merger <- read.csv(paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names=1)
-cluster_names <- colnames(read.csv(paste(results_dir, "ClusterAssignments.csv", setp = "")))
+cluster_names <- colnames(read.csv(paste(results_dir, "ClusterAssignments.csv", sep = "")))
 
 print("Read File")
 
