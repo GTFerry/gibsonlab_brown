@@ -39,7 +39,7 @@ dev.off()
 
 print(cluster_names)
 
-for (i in 1:(length(cluster_names), - 1)) {
+for (i in 1:(length(cluster_names) - 1)) {
     print(paste("Plotting Embedding:", paste("UMAP_Combined_", i, sep = "")))
     plotEmbedding(proj, embedding = paste("UMAP_Combined_", i, sep = ""))
     plot.new()
