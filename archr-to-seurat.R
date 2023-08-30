@@ -16,7 +16,7 @@ print(getAvailableMatrices(archR_project))
 
 raw_peak_mat <- getMatrixFromProject(
   ArchRProj = archR_project,
-  useMatrix = "PeakMatrix",
+  useMatrix = "TileMatrix",
   useSeqnames = NULL,
   verbose = TRUE,
   binarize = FALSE,
