@@ -24,8 +24,9 @@ sumdata$key=rownames(sumdata)
 
 # save plots
 pdf(file = "RandIndex_heatmap_report.pdf", height = 15, width = 15)
-plotARIs(clusMat = merger) + RotatedAxis()
+plot.new()
 title("Plot Before ARI Merging (Dune)")
+plotARIs(clusMat = merger) + RotatedAxis()
 
 merger <- Dune(clusMat = merger, verbose = FALSE)
 title("Plot After ARI Merging (Dune)")
@@ -39,7 +40,6 @@ print(cluster_names)
 for (i in 1:(length(cluster_names))) {
     print(paste("Plotting Embedding:", paste("UMAP_Combined_", i, sep = "")))
     plotEmbedding(proj, name = cluster_names[i], embedding = paste("UMAP_Combined_", i, sep = ""))
-    plot.new()
     title(paste("UMAP Visualization for: ", cluster_names[i], sep = ""))
 }
 
