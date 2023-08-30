@@ -10,7 +10,7 @@ print("Starting Dune Merging")
 
 merger <- read.csv(paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names=1)
 cluster_names <- colnames(read.csv(paste(results_dir, "ClusterAssignments.csv", sep = "")))
-cluster_names <- cluster_names[1:]
+cluster_names <- cluster_names[-1]
 
 print("Read File")
 
