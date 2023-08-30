@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source ~/.conda/envs/gibsonlab/etc/conda/activate.d/activate-r-base.sh
-
 # Number of lines per file
 n=$1
 if [ -z "$n" ]; then
@@ -22,15 +20,18 @@ num_files=$(( (total_lines + n - 1) / n ))
 # Generate the split CSV files
 awk -v n="$n" -v header="$(head -n 1 input.csv)" 'NR==1 {next} {filename=sprintf("'${root_dir}'/input_part%02d.csv", int((NR-2)/n)+1); if (NR % n == 2) print header > filename; print >> filename}' input.csv
 
-# Iterate over each part, create a directory, copy R script and run it
+# Iterate over each part, create a directory, copy R script, and link to shared renv
 for i in $(seq 1 $num_files); do
   temp_dir="${root_dir}/dir_${i}"
   mkdir -p $temp_dir
   cp "${root_dir}/input_part$(printf "%02d" $i).csv" "${temp_dir}/input.csv"
   cp "clustering-script.R" "${temp_dir}/clustering-script.R"
-  
+
+  # Create a symbolic link to the shared renv directory
+  ln -s "$(pwd)/renv" "${temp_dir}/renv"
+
   # Run the R script in background
-  cd $temp_dir && Rscript clustering-script.R &
+  (cd $temp_dir && Rscript clustering-script.R) &
 done
 
 # Wait for all background processes to complete
