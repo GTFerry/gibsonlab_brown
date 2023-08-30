@@ -1,5 +1,7 @@
 #!/bin/bash
 
+conda activate gibsonlab
+
 # Number of lines per file
 n=$1
 if [ -z "$n" ]; then
