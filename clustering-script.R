@@ -280,4 +280,4 @@ proj <- testClusters(
   verbosity        = 2
 )
 
-saveArchRProject(ArchRProj = proj, outputDirectory = "saves/clustered", load = FALSE)
+saveArchRProject(ArchRProj = proj, outputDirectory = "saves/clustered", load = FALSE, overwrite = TRUE)
