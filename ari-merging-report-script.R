@@ -9,7 +9,7 @@ proj <- loadArchRProject(path = "saves/clustered")
 print("Starting Dune Merging")
 
 merger <- read.csv(paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names=1)
-cluster_names <- colnames(read.csv(paste(results_dir, "ClusterAssignments.csv", sep = "")))
+cluster_names <- colnames(read.csv(paste(results_dir, "ClusterAssignments.csv", sep = "")))[1:]
 
 print("Read File")
 
@@ -23,9 +23,8 @@ sumdata$key=rownames(sumdata)
 
 # save plots
 pdf(file = "RandIndex_heatmap_report.pdf", height = 15, width = 15)
-plot.new()
-plotARIs(clusMat = merger) + RotatedAxis()
 title("Plot Before ARI Merging (Dune)")
+plotARIs(clusMat = merger) + RotatedAxis()
 
 merger <- Dune(clusMat = merger, verbose = FALSE)
 title("Plot After ARI Merging (Dune)")
@@ -36,9 +35,9 @@ plotPrePost(merger)
 
 print(cluster_names)
 
-for (i in 1:(length(cluster_names) - 1)) {
+for (i in 1:(length(cluster_names))) {
     print(paste("Plotting Embedding:", paste("UMAP_Combined_", i, sep = "")))
-    plotEmbedding(proj, embedding = paste("UMAP_Combined_", i, sep = ""))
+    plotEmbedding(proj, name = cluster_names[i], embedding = paste("UMAP_Combined_", i, sep = ""))
     plot.new()
     title(paste("UMAP Visualization for: ", cluster_names[i], sep = ""))
 }
