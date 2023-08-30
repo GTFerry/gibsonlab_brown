@@ -29,6 +29,7 @@ for i in $(seq 1 $num_files); do
 
   # Create a symbolic link to the shared renv directory
   ln -s "$(pwd)/renv" "${temp_dir}/renv"
+  ln -s "$(pwd)/renv.lock" "${temp_dir}/renv.lock"
 
   # Run the R script in background
   (cd $temp_dir && Rscript clustering-script.R) &
