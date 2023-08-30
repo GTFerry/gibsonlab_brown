@@ -37,7 +37,7 @@ plot.new()
 title("Cluster Change in each clustering Method")
 dev.off()
 
-for (i in 1:length(cluster_name)) {
+for (i in 1:length(cluster_names)) {
     plotEmbedding(proj, name = cluster_names[i], embedding = paste("UMAP_Combined_", i, sep = ""), size = 1.5, labelAsFactors=F, labelMeans=F)
     plot.new()
     title(paste("UMAP Visualization for: ", cluster_names[i], sep = ""))
