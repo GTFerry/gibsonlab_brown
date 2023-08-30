@@ -28,14 +28,11 @@ plotARIs(clusMat = merger) + RotatedAxis()
 title("Plot Before ARI Merging (Dune)")
 
 merger <- Dune(clusMat = merger, verbose = FALSE)
-plot.new()
-plotARIs(clusMat = merger$currentMat) + RotatedAxis()
 title("Plot After ARI Merging (Dune)")
+plotARIs(clusMat = merger$currentMat) + RotatedAxis()
 
-plotPrePost(merger)
-plot.new()
 title("Cluster Change in each clustering Method")
-dev.off()
+plotPrePost(merger)
 
 print(cluster_names)
 
@@ -46,3 +43,4 @@ for (i in 1:(length(cluster_names) - 1)) {
     title(paste("UMAP Visualization for: ", cluster_names[i], sep = ""))
 }
 
+dev.off()
