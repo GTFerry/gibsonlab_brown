@@ -48,4 +48,4 @@ minFrags <- 1200
 
 proj <- proj[proj$TSSEnrichment > minTSS & proj$nFrags > minFrags]
 
-saveArchRProject(ArchRProj = proj, outputDirectory = "saves/atac-rna-quality-controlled", load = FALSE)
+saveArchRProject(ArchRProj = proj, outputDirectory = "saves/atac-rna-quality-controlled", load = FALSE, overwrite = TRUE)
