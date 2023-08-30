@@ -41,7 +41,7 @@ plot.new()
 
 for (i in 1:(length(cluster_names))) {
     print(paste("Plotting Embedding:", paste("UMAP_Combined_", i, sep = "")))
-    plotEmbedding(proj, name = cluster_names[i], embedding = paste("UMAP_Combined_", i, sep = ""))
+    print(plotEmbedding(proj, name = cluster_names[i], embedding = paste("UMAP_Combined_", i, sep = "")))
     title(paste("UMAP Visualization for: ", cluster_names[i], sep = ""))
 }
 
