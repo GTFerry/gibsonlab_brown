@@ -4,7 +4,7 @@ library(Dune)
 
 results_dir <- "results/"
 
-proj <- loadArchRProject(ArchRProj = proj)
+proj <- loadArchRProject(path = "saves/clustered")
 
 print("Starting Dune Merging")
 
