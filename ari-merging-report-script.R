@@ -41,18 +41,18 @@ plot.new()
 
 for (i in 1:(length(cluster_names))) {
     print(paste("Plotting Embedding:", paste("UMAP_Combined_", i, sep = "")))
-    print("Plotting Confusion Matrix")
-    cM <- confusionMatrix(paste0(proj$cluster_names[i]), paste0(proj$Sample))
-    cM <- cM / Matrix::rowSums(cM)
-    confmatrix <- pheatmap::pheatmap(
-        mat = as.matrix(cM),
-        color = paletteContinuous("whiteBlue"),
-        border_color = "black"
-    )
-
-    print(confmatrix)
-
-    print("Plotting UMAP")
+#    print("Plotting Confusion Matrix")
+#    cM <- confusionMatrix(paste0(proj$cluster_names[i]), paste0(proj$Sample))
+#    cM <- cM / Matrix::rowSums(cM)
+#    confmatrix <- pheatmap::pheatmap(
+#        mat = as.matrix(cM),
+#        color = paletteContinuous("whiteBlue"),
+#        border_color = "black"
+#    )
+#
+#    print(confmatrix)
+#
+#    print("Plotting UMAP")
     print(plotEmbedding(proj, name = cluster_names[i], embedding = paste("UMAP_Combined_", i, sep = "")))
 }
 
