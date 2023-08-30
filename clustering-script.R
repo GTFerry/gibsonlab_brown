@@ -64,9 +64,16 @@ testClusters <- function(proj, resolutions_ATAC, resolutions_RNA,
   
   first_col <- data.frame(1:nCells(proj))
   colnames(first_col) <- "Cell Index"
+
+  cluster_assignment_filename <- paste(results_dir, "ClusterAssignments.csv", sep = "")
+
+  if (file.exists(cluster_assignment_filename)) {
+      #Delete file if it exists
+      file.remove(cluster_assignment_filename)
+  }
   
   # Write the dataframe to a CSV file
-  write.csv(first_col, file = paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names = FALSE)
+  write.csv(first_col, file = cluster_assignment_filename, row.names = FALSE)
   
   plots <- list()
   clusterAssignments <- data.frame(cellBarcode = getCellNames(proj))
@@ -249,7 +256,7 @@ testClusters <- function(proj, resolutions_ATAC, resolutions_RNA,
 
     # View(currentClusteringLabels)
 
-    appendToCSV(currentClusteringLabels, paste(results_dir, "ClusterAssignments.csv", sep = ""))
+    appendToCSV(currentClusteringLabels, cluster_assignment_filename)
 
     if(verbosity >= 1){
       cat(strftime(Sys.time(), format="%Y-%m-%d %H:%M:%S"), "- Finished iteration", i, "\n")
