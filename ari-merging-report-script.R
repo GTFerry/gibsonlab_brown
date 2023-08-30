@@ -24,6 +24,7 @@ sumdata$key=rownames(sumdata)
 
 # save plots
 pdf(file = "RandIndex_heatmap_report.pdf", height = 15, width = 15)
+plot.new()
 title("Plot Before ARI Merging (Dune)")
 plotARIs(clusMat = merger) + RotatedAxis()
 
