@@ -19,7 +19,7 @@ raw_peak_mat <- getMatrixFromProject(
   useMatrix = "TileMatrix",
   useSeqnames = NULL,
   verbose = TRUE,
-  binarize = FALSE,
+  binarize = TRUE,
   threads = getArchRThreads(),
   logFile = createLogFile("getMatrixFromProject")
 )
