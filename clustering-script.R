@@ -281,34 +281,3 @@ proj <- testClusters(
 )
 
 saveArchRProject(ArchRProj = proj, outputDirectory = "saves/clustered", load = FALSE)
-
-print("Starting Dune Merging")
-
-merger <- read.csv(paste(results_dir, "ClusterAssignments.csv", sep = ""), row.names=1)
-
-print(head(merger))
-
-print("Read File")
-
-### ALL Plotted Together ###
-# plot ARIs as barplot
-getARIs <- ARIs(merger)
-
-print("Got ARIs")
-sumdata=data.frame(value=apply(getARIs,2,mean))
-sumdata$key=rownames(sumdata)
-
-# save plots
-pdf(file = "RandIndex_heatmap_report.pdf", height = 15, width = 15)
-plotARIs(clusMat = merger) + RotatedAxis()
-title("Plot Before ARI Merging (Dune)")
-
-merger <- Dune(clusMat = merger, verbose = FALSE)
-plotARIs(clusMat = merger$currentMat) + RotatedAxis()
-title("Plot After ARI Merging (Dune)")
-
-plotPrePost(merger)
-title("Cluster Change in each clustering Method")
-dev.off()
-
-# TODO: for each clustering method, plot dotplot and actual cluster shape
