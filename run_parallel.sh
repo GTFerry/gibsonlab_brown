@@ -1,6 +1,6 @@
 #!/bin/bash
 
-conda activate gibsonlab
+source ~/.conda/envs/gibsonlab/etc/conda/activate.d/activate-r-base.sh
 
 # Number of lines per file
 n=$1
