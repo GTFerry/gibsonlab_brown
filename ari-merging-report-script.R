@@ -25,6 +25,7 @@ sumdata$key=rownames(sumdata)
 
 # save plots
 pdf(file = "RandIndex_heatmap_report.pdf", height = 15, width = 15)
+plot.new()
 plotARIs(clusMat = merger) + RotatedAxis() + title("Plot Before ARI Merging (Dune)")
 
 merger <- Dune(clusMat = merger, verbose = FALSE)
