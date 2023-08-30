@@ -12,6 +12,8 @@ archR_project <- loadArchRProject(archR_project_path)
 
 # get peaks matrix
 
+print(getAvailableMatrices(archR_project))
+
 raw_peak_mat <- getMatrixFromProject(
   ArchRProj = archR_project,
   useMatrix = "PeakMatrix",
