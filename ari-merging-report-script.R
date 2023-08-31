@@ -14,6 +14,7 @@ cluster_names <- colnames(read.csv(paste(results_dir, "ClusterAssignments.csv", 
 cluster_names <- cluster_names[-1]
 
 print("Read File")
+print(cluster_names)
 
 ### ALL Plotted Together ###
 # plot ARIs as barplot
@@ -23,11 +24,13 @@ print("Got ARIs")
 sumdata=data.frame(value=apply(getARIs,2,mean))
 sumdata$key=rownames(sumdata)
 
+print("Starting Plots")
 # save plots
 pdf(file = "RandIndex_heatmap_report.pdf", height = 15, width = 15)
 plot.new()
 plotARIs(clusMat = merger) + RotatedAxis() + title("Plot Before ARI Merging (Dune)")
 
+print("Merging")
 merger <- Dune(clusMat = merger, verbose = FALSE)
 title("Plot After ARI Merging (Dune)")
 plotARIs(clusMat = merger$currentMat) + RotatedAxis()
