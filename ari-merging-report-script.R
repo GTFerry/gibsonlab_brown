@@ -32,9 +32,12 @@ plotARIs(clusMat = merger) + RotatedAxis() + title("Plot Before ARI Merging (Dun
 
 print("Merging")
 merger <- Dune(clusMat = merger, verbose = FALSE)
+print("Finished Merging")
 title("Plot After ARI Merging (Dune)")
+plot.new()
 plotARIs(clusMat = merger$currentMat) + RotatedAxis()
 
+plot.new()
 title("Cluster Change in each clustering Method")
 plotPrePost(merger)
 
