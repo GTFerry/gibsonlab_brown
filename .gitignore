@@ -1,11 +1,19 @@
+# R Directories/Files
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+
+# Beeg Files
 data/
-*.arrow
 saves/
+tmp/
+
+# ArchR Logs
 ArchRLogs/
 ArchROutput/
-tmp/
+
+# Generated Files
 *.pdf
+*.arrow
+*.rds
