@@ -49,6 +49,16 @@ metadata$Barcodes <- rownames(metadata)
 
 sorted_metadata <- metadata[match(colnames(gmat), metadata$Barcodes),]
 
+
+# Identify columns in the metadata that contain the word "Cluster"
+cluster_columns <- grep("Cluster", colnames(sorted_metadata), value = TRUE)
+
+
+# Remove the 'C' from the beginning of cluster IDs and convert to numeric
+for (col_name in cluster_columns) {
+  sorted_metadata[[col_name]] <- as.numeric(gsub("C", "", sorted_metadata[[col_name]]))
+}
+
 print("Creating RNA Assay")
 RNA_assay <- CreateAssayObject(counts = gmat)
 
@@ -90,6 +100,8 @@ print(dim(gmat))
 print(dim(sorted_metadata))
 print(sapply(sorted_metadata, class))
 
+
+
 # seurat_obj <- AddMetaData(object = seurat_obj, metadata = sorted_metadata)
 # Make sure the rows of metadata match with the columns of the Seurat object
 if (all(rownames(sorted_metadata) %in% colnames(seurat_obj))) {
@@ -109,6 +121,8 @@ available_embeddings <- names(archR_project@embeddings)
 
 # Filter to only include embeddings with "UMAP_Combined" in the name
 umap_combined_embeddings <- grep("UMAP_Combined", available_embeddings, value = TRUE)
+
+
 
 # Loop through each UMAP_Combined embedding and add it to the Seurat object
 for (embedding_name in umap_combined_embeddings) {
@@ -131,6 +145,7 @@ for (embedding_name in umap_combined_embeddings) {
   seurat_obj[[embedding_name]] <- umap
   
 }
+
 
 # save seurat object
 saveRDS(seurat_obj, file = "seurat_obj.rds")

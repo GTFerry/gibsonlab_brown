@@ -2,6 +2,7 @@
 .Rproj.user
 .Rhistory
 .RData
+.RDataTmp
 .Ruserdata
 
 # Beeg Files
@@ -17,3 +18,4 @@ ArchROutput/
 *.pdf
 *.arrow
 *.rds
+
