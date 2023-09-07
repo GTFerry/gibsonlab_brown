@@ -32,7 +32,7 @@ plotARIs(clusMat = merger) + RotatedAxis() + title("Plot Before ARI Merging (Dun
 
 print("Merging")
 merger <- Dune(clusMat = merger, verbose = FALSE)
-save(merger, "saves/merged_data.Rdata")
+save(merger, file="saves/merged_data.Rdata")
 print("Finished Merging")
 title("Plot After ARI Merging (Dune)")
 plot.new()

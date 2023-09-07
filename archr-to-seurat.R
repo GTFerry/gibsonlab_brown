@@ -114,7 +114,7 @@ print("Adding Metadata")
 # print(sapply(sorted_metadata, class))
 
 for (i in cluster_columns) {
-  gex_data_subset <- AddMetaData(gex_data_subset, metadata[i], i)
+  gex_data_subset <- AddMetaData(gex_data_subset, eval(parse(text=paste("metadata$",i))), i)
 }
 
 # seurat_obj <- AddMetaData(object = seurat_obj, metadata = sorted_metadata)
@@ -161,15 +161,65 @@ for (embedding_name in umap_combined_embeddings) {
   
 }
 
+known_markers <- c(
+  "VCAN",
+  "CD14",
+  "FCGR3A",
+  "MS4A7",
+  "CD86",
+  "ITGAX",
+  "FCER1A",
+  "CST3",
+  "CD1C",
+  "CLEC4C",
+  "MS4A1",
+  "TCL1A",
+  "PAX5",
+  "CD24",
+  "CD83",
+  "CD27",
+  "PRDM1",
+  "IRF4",
+  "XBP1",
+  "CD3D",
+  "CD4",
+  "CD8A",
+  "IL7R",
+  "CCR7",
+  "SELL",
+  "ANK3",
+  "KLRC2",
+  "ZEB1",
+  "STAT3",
+  "IL21R",
+  "STAT1",
+  "ISG15",
+  "IL12RB2",
+  "GZMH",
+  "GZMB",
+  "CCL5",
+  "CD69",
+  "KLRB1",
+  "CCR5",
+  "CCR6",
+  "CXCR6",
+  "IL18R1",
+  "GNLY",
+  "NKG7",
+  "TGFB1",
+  "ABCB1",
+  "PPP1R16B"
+)
 
-# Assuming your clustering column is "Cluster_1_ResRNA_0.75_ResATAC_0.75_Iters_1_Dims_1to15"
-# Assign this as the 'active' cluster identity in Seurat object
-gex_data_subset <- SetIdent(gex_data_subset, value = "Cluster_1_ResRNA_0.75_ResATAC_0.75_Iters_1_Dims_1to15")
-# Find marker genes
-markers <- FindAllMarkers(gex_data_subset, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
-# Get top 5 marker genes for each cluster
-top_markers <- markers %>% group_by(cluster) %>% top_n(n = 5, wt = avg_log2FC)
-# DotPlot
-DotPlot(gex_data_subset, features = unique(top_markers$gene)) + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+pdf("dotplots.pdf", width = 16, height = 8)
+for (i in cluster_columns) {
+  print(paste("Saving dotplot: ", i))
+  gex_data_subset <- SetIdent(gex_data_subset, value = i)
+  
+  print(DotPlot(gex_data_subset, features = known_markers) +
+    ggtitle(i) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+  
+}
+dev.off()
