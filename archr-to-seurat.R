@@ -1,14 +1,27 @@
 library(ArchR)
 library(Seurat)
+library(dplyr)
 
 ### Load ArchR Object ###
 
 args = commandArgs(trailingOnly=TRUE)
 archR_project_path = args[1]
 
-archR_project <- loadArchRProject(archR_project_path)
+archR_project <- loadArchRProject("saves/clustered")
+gex_data <- Read10X_h5("data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5")
+seurat_project <- CreateSeuratObject(counts = gex_data$`Gene Expression`)
 
-print("Loaded archr project")
+qc_cells <- archR_project@cellColData@rownames
+qc_cells_seurat <- substring(qc_cells, 10)
+seurat_cell_ids <- gex_data[["Gene Expression"]]@Dimnames[[2]]
+common_cell_ids <- intersect(seurat_cell_ids, qc_cells_seurat)
+
+gex_data_subset <- subset(seurat_project, cells = common_cell_ids)
+
+gex_data_subset <- RenameCells(gex_data_subset, new.names = qc_cells)
+
+all.genes <- rownames(gex_data_subset)
+gex_data_subset <- ScaleData(gex_data_subset, features = all.genes)
 
 addArchRThreads(threads = 6)
 addArchRGenome("hg38")
@@ -29,52 +42,52 @@ addArchRGenome("hg38")
 
 # get RNA matrix
 
-print("Getting GeneExpressionMatrix")
-
-raw_gex_mat <- getMatrixFromProject(
-                                    ArchRProj = archR_project,
-                                    useMatrix = "GeneExpressionMatrix",
-)
-
-gmat <- raw_gex_mat@assays@data$GeneExpressionMatrix
-colnames(gmat) <- colnames(raw_gex_mat)
-rownames(gmat) <- raw_gex_mat@elementMetadata$name
-
-print("Getting Metadata")
+# print("Getting GeneExpressionMatrix")
+# 
+# raw_gex_mat <- getMatrixFromProject(
+#   ArchRProj = archR_project,
+#   useMatrix = "GeneExpressionMatrix",
+# )
+# 
+# gmat <- raw_gex_mat@assays@data$GeneExpressionMatrix
+# colnames(gmat) <- colnames(raw_gex_mat)
+# rownames(gmat) <- raw_gex_mat@elementMetadata$name
+# 
+# print("Getting Metadata")
 metadata <- getCellColData(
-                           ArchRProj = archR_project
+  ArchRProj = archR_project
 )
 
 metadata$Barcodes <- rownames(metadata)
-
-sorted_metadata <- metadata[match(colnames(gmat), metadata$Barcodes),]
-
-
-# Identify columns in the metadata that contain the word "Cluster"
-cluster_columns <- grep("Cluster", colnames(sorted_metadata), value = TRUE)
-
-
-# Remove the 'C' from the beginning of cluster IDs and convert to numeric
+# 
+# sorted_metadata <- metadata[match(colnames(gex_data_subset$nFeature_RNA), metadata$Barcodes),]
+# 
+# 
+# # Identify columns in the metadata that contain the word "Cluster"
+cluster_columns <- grep("Cluster", colnames(metadata), value = TRUE)
+# 
+# 
+# # Remove the 'C' from the beginning of cluster IDs and convert to numeric
 for (col_name in cluster_columns) {
-  sorted_metadata[[col_name]] <- as.numeric(gsub("C", "", sorted_metadata[[col_name]]))
+  metadata[[col_name]] <- as.numeric(gsub("C", "", metadata[[col_name]]))
 }
-
-print("Creating RNA Assay")
-RNA_assay <- CreateAssayObject(counts = gmat)
-
-print("Creating Seurat Object")
-seurat_obj <- CreateSeuratObject(
-                                 counts = RNA_assay,
-                                 assay = "RNA"
-)
-
-# Initialize a vector to hold mock column names
+# 
+# print("Creating RNA Assay")
+# RNA_assay <- CreateAssayObject(counts = gmat)
+# 
+# print("Creating Seurat Object")
+# seurat_obj <- CreateSeuratObject(
+#   counts = RNA_assay,
+#   assay = "RNA"
+# )
+# 
+# # Initialize a vector to hold mock column names
 # mock_names <- vector("character", length = ncol(sorted_metadata))
-# 
-# # Counter to keep track of repetitions
-# counter <- 1
-# 
-# # Generate mock names
+
+# Counter to keep track of repetitions
+counter <- 1
+
+# Generate mock names
 # for (i in 1:26) {
 #   for (j in 1:26) {
 #     if (counter > ncol(sorted_metadata)) {
@@ -87,34 +100,36 @@ seurat_obj <- CreateSeuratObject(
 #     break
 #   }
 # }
-# 
-# # Assign mock names to columns
-# colnames(sorted_metadata) <- mock_names
 
-all(rownames(sorted_metadata) %in% colnames(seurat_obj))
-sum(is.na(sorted_metadata))
+# Assign mock names to columns
+# colnames(sorted_metadata) <- mock_names
+# 
+# all(rownames(sorted_metadata) %in% colnames(seurat_obj))
+# sum(is.na(sorted_metadata))
 
 
 print("Adding Metadata")
-print(dim(gmat))
-print(dim(sorted_metadata))
-print(sapply(sorted_metadata, class))
+# print(dim(gmat))
+# print(dim(sorted_metadata))
+# print(sapply(sorted_metadata, class))
 
-
+for (i in cluster_columns) {
+  gex_data_subset <- AddMetaData(gex_data_subset, metadata[i], i)
+}
 
 # seurat_obj <- AddMetaData(object = seurat_obj, metadata = sorted_metadata)
 # Make sure the rows of metadata match with the columns of the Seurat object
-if (all(rownames(sorted_metadata) %in% colnames(seurat_obj))) {
-  
-  # Re-order the metadata to match the Seurat object
-  sorted_metadata <- sorted_metadata[match(colnames(seurat_obj), rownames(sorted_metadata)),]
-  
-  # Assign metadata directly
-  seurat_obj@meta.data <- cbind(seurat_obj@meta.data, sorted_metadata)
-  
-} else {
-  stop("Row names in metadata do not match with Seurat object column names.")
-}
+# if (all(rownames(sorted_metadata) %in% colnames(seurat_obj))) {
+#   
+#   # Re-order the metadata to match the Seurat object
+#   sorted_metadata <- sorted_metadata[match(colnames(seurat_obj), rownames(sorted_metadata)),]
+#   
+#   # Assign metadata directly
+#   seurat_obj@meta.data <- cbind(seurat_obj@meta.data, sorted_metadata)
+#   
+# } else {
+#   stop("Row names in metadata do not match with Seurat object column names.")
+# }
 
 # Get names of all available embeddings in the ArchR project
 available_embeddings <- names(archR_project@embeddings)
@@ -133,7 +148,7 @@ for (embedding_name in umap_combined_embeddings) {
                               returnDF = TRUE)
   
   # Match the order of the UMAP coordinates to the order of the cells in the Seurat object
-  umap_coords <- umap_coords[match(colnames(gmat), rownames(umap_coords)),]
+  umap_coords <- umap_coords[match(colnames(gex_data_subset$nFeature_RNA), rownames(umap_coords)),]
   
   # Convert to a matrix
   mat_umap_coords <- as.matrix(umap_coords)
@@ -142,10 +157,19 @@ for (embedding_name in umap_combined_embeddings) {
   umap <- CreateDimReducObject(embeddings = mat_umap_coords)
   
   # Add the DimReduc object to the Seurat object under the appropriate name
-  seurat_obj[[embedding_name]] <- umap
+  gex_data_subset[[embedding_name]] <- umap
   
 }
 
 
-# save seurat object
-saveRDS(seurat_obj, file = "seurat_obj.rds")
+# Assuming your clustering column is "Cluster_1_ResRNA_0.75_ResATAC_0.75_Iters_1_Dims_1to15"
+# Assign this as the 'active' cluster identity in Seurat object
+gex_data_subset <- SetIdent(gex_data_subset, value = "Cluster_1_ResRNA_0.75_ResATAC_0.75_Iters_1_Dims_1to15")
+# Find marker genes
+markers <- FindAllMarkers(gex_data_subset, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+# Get top 5 marker genes for each cluster
+top_markers <- markers %>% group_by(cluster) %>% top_n(n = 5, wt = avg_log2FC)
+# DotPlot
+DotPlot(gex_data_subset, features = unique(top_markers$gene)) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
