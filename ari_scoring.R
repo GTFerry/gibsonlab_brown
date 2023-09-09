@@ -1,8 +1,10 @@
 library(dplyr)
 library(tidyr)
 
+# Load data
 data <- read.csv("results/average_data.csv", row.names = 1)
 
+# First conver rownames to a column named cluster, then extract the values of each param and create a column for each.
 data <- data %>%
   rownames_to_column(var = "cluster") %>%
   mutate(
@@ -12,6 +14,7 @@ data <- data %>%
     Dims = gsub(".*Dims_(1to[0-9]+).*", "\\1", cluster)
   )
 
+# reshape data from wide format to long format
 mean_scores <- data %>%
   pivot_longer(cols = c(ResRNA, ResATAC, Iters, Dims), names_to = "parameter", values_to = "value") %>%
   group_by(parameter, value) %>%
