@@ -57,7 +57,7 @@ known_markers <- c(
 args = commandArgs(trailingOnly=TRUE)
 archR_project_path = args[1]
 
-archR_project <- loadArchRProject("saves/clustered36")
+archR_project <- loadArchRProject("saves/clustered")
 gex_data <- Read10X_h5("data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5")
 seurat_project <- CreateSeuratObject(counts = gex_data$`Gene Expression`)
 
