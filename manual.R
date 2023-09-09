@@ -171,4 +171,4 @@ gex_data_subset[["umap_manual"]] <- umap
 
 gex_data_subset <- SetIdent(gex_data_subset, value = "manual_clusters")
 DimPlot(gex_data_subset, reduction = "umap_manual")
-FeaturePlot(gex_data_subset, feature = "MS4A1")
+# FeaturePlot(gex_data_subset, feature = "MS4A1")

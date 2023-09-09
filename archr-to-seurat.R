@@ -57,7 +57,7 @@ known_markers <- c(
 args = commandArgs(trailingOnly=TRUE)
 archR_project_path = args[1]
 
-archR_project <- loadArchRProject("saves/clustered_manual")
+archR_project <- loadArchRProject("saves/clustered36")
 gex_data <- Read10X_h5("data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5")
 seurat_project <- CreateSeuratObject(counts = gex_data$`Gene Expression`)
 
@@ -249,19 +249,23 @@ for (embedding_name in umap_combined_embeddings) {
 #   gex_data_subset[["umap_coords2"]] <- umap_coords_matched[, 2]
 # }
 
+counter <- 1
 
 pdf("dotplots.pdf", width = 16, height = 8)
 for (i in cluster_columns) {
   print(paste("Saving dotplot: ", i))
   gex_data_subset <- SetIdent(gex_data_subset, value = i)
-  
-  # DimPlot(gex_data_subset, reduction = <imagine that this is right>)
 
   levels(gex_data_subset) <- as.character(sort(as.numeric(levels(gex_data_subset))))
   
   print(DotPlot(gex_data_subset, features = known_markers, scale = FALSE) +
     ggtitle(i) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+  
+  print(DimPlot(gex_data_subset, reduction = paste0("UMAP_Combined_", counter))) + ggtitle(paste0(i, "  - UMAP"))
+  counter <- counter + 1
+  
+  # print(FeaturePlot(gex_data_subset, features = known_markers) + ggtitle("Features"))
   
 }
 dev.off()
