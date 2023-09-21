@@ -4,9 +4,12 @@ library(dplyr)
 
 ### Load ArchR Object ###
 
+# Generic
 known_markers <- c(
   "VCAN",
   "CD14",
+  "CD16",
+  "LYZ",
   "FCGR3A",
   "MS4A7",
   "CD86",
@@ -53,6 +56,88 @@ known_markers <- c(
   "ABCB1",
   "PPP1R16B"
 )
+
+# B Cell
+# known_markers <- c(known_markers, c(
+# "FOXP3",
+# "STAT5A",
+# "CTLA4",
+# "PECAM1",
+# "CCR7",
+# "IL2RA",
+# "CCR5",
+# "TBX21",
+# "GZMA",
+# "CD69",
+# "ITGAE",
+# "IL7",
+# "IL7R",
+# "SELL",
+# "CD27",
+# "CD3D",
+# "CCR7",
+# "ANK3",
+# "ZEB1"
+# #"HLA-DR",
+# ))
+
+# T Cell
+# known_markers <- c(known_markers,
+#   "CD4",
+#   "CD8A",
+#   "CD8B",
+#   "TXNIP",
+#   "BTG1",
+#   "ZFP36L2",
+#   "ANK3",
+#   "NABP1",
+#   "IL7R",
+#   "CTLA4",
+#   "IL21",
+#   "CD200",
+#   "CXCL13",
+#   "PDCD1",
+#   "FKBP5",
+#   "CXCR5",
+#   "BCL6",
+#   "SELL",
+#   "KLF2",
+#   "ITGA6",
+#   "LEF1",
+#   "CCR7",
+#   "S100A4"
+# )
+
+# Monocytes
+
+known_markers <- c(
+  "S100A8",
+  "CD163",
+  "LYZ",
+  "CD14",
+  "NKG7",
+  "GNLY",
+  "GZMH",
+  "IL7R",
+  "CD69",
+  "MAL",
+  "MS4A1",
+  "CD79A",
+  "CD79B",
+  "FCGR3A",
+  "HES1",
+  "HES4",
+  "PF4",
+  "PPBP",
+  "HLAs",
+  "CD1C",
+  "PTGDS",
+  "ITM2C",
+  "CCDC50",
+  "NEATTAOK1"
+)
+
+known_markers <- unique(known_markers)
 
 args = commandArgs(trailingOnly=TRUE)
 archR_project_path = args[1]
@@ -112,79 +197,19 @@ metadata <- getCellColData(
 
 metadata$Barcodes <- rownames(metadata)
 sorted_metadata <- metadata[match(colnames(gex_data_subset), metadata$Barcodes),]
-# 
-# sorted_metadata <- metadata[match(colnames(gex_data_subset$nFeature_RNA), metadata$Barcodes),]
-# 
-# 
-# # Identify columns in the metadata that contain the word "Cluster"
+
 cluster_columns <- grep("Cluster", colnames(sorted_metadata), value = TRUE)
-# 
-# 
-# # Remove the 'C' from the beginning of cluster IDs and convert to numeric
+
 for (col_name in cluster_columns) {
   sorted_metadata[[col_name]] <- as.numeric(gsub("C", "", sorted_metadata[[col_name]]))
 }
-# 
-# print("Creating RNA Assay")
-# RNA_assay <- CreateAssayObject(counts = gmat)
-# 
-# print("Creating Seurat Object")
-# seurat_obj <- CreateSeuratObject(
-#   counts = RNA_assay,
-#   assay = "RNA"
-# )
-# 
-# # Initialize a vector to hold mock column names
-# mock_names <- vector("character", length = ncol(sorted_metadata))
-
-# Counter to keep track of repetitions
-counter <- 1
-
-# Generate mock names
-# for (i in 1:26) {
-#   for (j in 1:26) {
-#     if (counter > ncol(sorted_metadata)) {
-#       break
-#     }
-#     mock_names[counter] <- paste0(letters[i], letters[j], letters[i], letters[j])
-#     counter <- counter + 1
-#   }
-#   if (counter > ncol(sorted_metadata)) {
-#     break
-#   }
-# }
-
-# Assign mock names to columns
-# colnames(sorted_metadata) <- mock_names
-# 
-# all(rownames(sorted_metadata) %in% colnames(seurat_obj))
-# sum(is.na(sorted_metadata))
-
 
 print("Adding Metadata")
-# print(dim(gmat))
-# print(dim(sorted_metadata))
-# print(sapply(sorted_metadata, class))
 
 for (i in cluster_columns) {
   gex_data_subset <- AddMetaData(gex_data_subset, eval(parse(text=paste("sorted_metadata$",i))), i)
 }
 
-# seurat_obj <- AddMetaData(object = seurat_obj, metadata = sorted_metadata)
-# Make sure the rows of metadata match with the columns of the Seurat object
-# if (all(rownames(sorted_metadata) %in% colnames(seurat_obj))) {
-#   
-#   # Re-order the metadata to match the Seurat object
-#   sorted_metadata <- sorted_metadata[match(colnames(seurat_obj), rownames(sorted_metadata)),]
-#   
-#   # Assign metadata directly
-#   seurat_obj@meta.data <- cbind(seurat_obj@meta.data, sorted_metadata)
-#   
-# } else {
-#   stop("Row names in metadata do not match with Seurat object column names.")
-# }
-
-# Get names of all available embeddings in the ArchR project
 available_embeddings <- names(archR_project@embeddings)
 
 # Filter to only include embeddings with "UMAP_Combined" in the name
@@ -200,54 +225,20 @@ for (embedding_name in umap_combined_embeddings) {
                               embedding = embedding_name,
                               returnDF = TRUE)
 
-  # Match the order of the UMAP coordinates to the order of the cells in the Seurat object
-  # print(match(colnames(gex_data_subset), rownames(umap_coords)),)
-  # print(colnames(gex_data_subset$nFeature_RNA))
-  #print(rownames(umap_coords))
   umap_coords <- umap_coords[match(colnames(gex_data_subset), rownames(umap_coords)),]
 
   # Convert to a matrix
   mat_umap_coords <- as.matrix(umap_coords)
 
-  # Create a Seurat DimReduc object
   umap <- CreateDimReducObject(embeddings = mat_umap_coords)
 
   # Add the DimReduc object to the Seurat object under the appropriate name
   gex_data_subset[[embedding_name]] <- umap
+  
+  # gex_data_subset@reductions[[embedding_name]]@key <- "UMAP_"
 
 }
 
-
-# available_embeddings <- names(archR_project@embeddings)
-# 
-# # Filter to only include embeddings with "UMAP_Combined" in the name
-# umap_combined_embeddings <- grep("UMAP_Combined", available_embeddings, value = TRUE)
-# 
-# # Get cell names from Seurat object
-# seurat_cell_names <- colnames(gex_data_subset)
-# 
-# # Loop through each UMAP_Combined embedding and add it to the Seurat object
-# for (embedding_name in umap_combined_embeddings) {
-#   
-#   # Get the UMAP coordinates from the ArchR project
-#   umap_coords <- getEmbedding(ArchRProj = archR_project, 
-#                               embedding = embedding_name, 
-#                               returnDF = TRUE)
-#   
-#   # Match the order of the UMAP coordinates to the order of the cells in the Seurat object
-#   matching_indices <- match(seurat_cell_names, rownames(umap_coords))
-#   
-#   if (any(is.na(matching_indices))) {
-#     warning(paste("There are", sum(is.na(matching_indices)), "cells in Seurat object not found in the embedding", embedding_name))
-#   }
-#   
-#   # Get the matched UMAP coordinates
-#   umap_coords_matched <- umap_coords[matching_indices, , drop = FALSE]
-#   
-#   # Add the UMAP coordinates to the metadata of the Seurat object
-#   gex_data_subset[["umap_coords1"]] <- umap_coords_matched[, 1]
-#   gex_data_subset[["umap_coords2"]] <- umap_coords_matched[, 2]
-# }
 
 counter <- 1
 
@@ -257,16 +248,55 @@ for (i in cluster_columns) {
   gex_data_subset <- SetIdent(gex_data_subset, value = i)
 
   levels(gex_data_subset) <- as.character(sort(as.numeric(levels(gex_data_subset))))
+  clusters_to_plot <- 1:6
+  
+  #### To Rename Clusters (18)
+  new.cluster.ids <- c(
+   "Proinflammatory Monocytes", # 1
+   "Non-classical Monocytes", # 2
+   "Conventional Dendritic Cells", # 3
+   "FCGR3A+ Monocytes", # 4
+   "CD14+ Monocytes", # 5
+   "CD14+ Monocytes", # 6
+   "CD8 Naive T Cells", # 7
+   "CD4 Naive T Cells", # 8
+   "CD8 Memory T Cells", # 9
+   "CD4 Memory T Cells", # 10
+   "MAIT Cells", # 11
+   "NK Cells", # 12
+   "CD8+ Cytotoxic T Cells", # 13
+   "Plasmacytoid Dendritic Cells", # 14
+   "Plasma B Cells", # 15
+   "Activated B Cells", # 16
+   "Resting Naive B Cells", # 17
+   "Transitional B Cells" # 18
+   )
+
+  names(new.cluster.ids) <- levels(gex_data_subset)
+  gex_data_subset <- RenameIdents(gex_data_subset, new.cluster.ids)
+  
+  # Subset gex_data_subset to only include the clusters you want to plot
+  gex_data_subset <- subset(gex_data_subset, idents = new.cluster.ids[clusters_to_plot])
+  ####
   
   print(DotPlot(gex_data_subset, features = known_markers, scale = FALSE) +
     ggtitle(i) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)))
   
-  print(DimPlot(gex_data_subset, reduction = paste0("UMAP_Combined_", counter))) + ggtitle(paste0(i, "  - UMAP"))
+  print(DimPlot(gex_data_subset, reduction = paste0("UMAP_Combined_", counter), label = TRUE)) + ggtitle(paste0(i, "  - UMAP"))
   counter <- counter + 1
   
-  # print(FeaturePlot(gex_data_subset, features = known_markers) + ggtitle("Features"))
+  # diff_markers <- FindMarkers(gex_data_subset, ident.1 = "Trm", ident.2 = "Tcm", ident.3 = "GdT Cells", ident.4 = "Th1/Th17 Cells", min.pct = 0.25)
+  # write.csv(diff_markers, "diff.csv")
   
+  known_markers_length <- length(known_markers)
+  group_size <- 9
+  
+  for (i in seq(1, known_markers_length, by = group_size)) {
+    end_index <- min(i + group_size - 1, known_markers_length)
+    print(FeaturePlot(gex_data_subset, features = known_markers[c(i:end_index)]))
+  }
 }
 dev.off()
+
 
