@@ -1,3 +1,7 @@
+---
+---
+---
+
 # Cluster Labeling Writeup
 
 # Reference Dotplot
@@ -42,7 +46,7 @@ Cluster number 3 has high expression for LYZ and CST3, as well as moderate expre
 
 # T Cells
 
-![](reports/T Cells Differentiation.png)
+![](reports/T%20Cells%20Differentiation.png)
 
 ## CD8+ Cytotoxic T Cells
 

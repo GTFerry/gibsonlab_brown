@@ -54,7 +54,9 @@ known_markers <- c(
   "NKG7",
   "TGFB1",
   "ABCB1",
-  "PPP1R16B"
+  "PPP1R16B",
+  "MKI67",
+  "PPBP"
 )
 
 # B Cell
@@ -110,32 +112,32 @@ known_markers <- c(
 
 # Monocytes
 
-known_markers <- c(
-  "S100A8",
-  "CD163",
-  "LYZ",
-  "CD14",
-  "NKG7",
-  "GNLY",
-  "GZMH",
-  "IL7R",
-  "CD69",
-  "MAL",
-  "MS4A1",
-  "CD79A",
-  "CD79B",
-  "FCGR3A",
-  "HES1",
-  "HES4",
-  "PF4",
-  "PPBP",
-  "HLAs",
-  "CD1C",
-  "PTGDS",
-  "ITM2C",
-  "CCDC50",
-  "NEATTAOK1"
-)
+# known_markers <- c(
+#   "S100A8",
+#   "CD163",
+#   "LYZ",
+#   "CD14",
+#   "NKG7",
+#   "GNLY",
+#   "GZMH",
+#   "IL7R",
+#   "CD69",
+#   "MAL",
+#   "MS4A1",
+#   "CD79A",
+#   "CD79B",
+#   "FCGR3A",
+#   "HES1",
+#   "HES4",
+#   "PF4",
+#   "PPBP",
+#   "HLAs",
+#   "CD1C",
+#   "PTGDS",
+#   "ITM2C",
+#   "CCDC50",
+#   "NEATTAOK1"
+# )
 
 known_markers <- unique(known_markers)
 
@@ -248,12 +250,12 @@ for (i in cluster_columns) {
   gex_data_subset <- SetIdent(gex_data_subset, value = i)
 
   levels(gex_data_subset) <- as.character(sort(as.numeric(levels(gex_data_subset))))
-  clusters_to_plot <- 1:6
+  clusters_to_plot <- c(1:4, 18)
   
   #### To Rename Clusters (18)
   new.cluster.ids <- c(
-   "Proinflammatory Monocytes", # 1
-   "Non-classical Monocytes", # 2
+   "Non-classical Monocytes", # 1
+   "Unknown", # 2
    "Conventional Dendritic Cells", # 3
    "FCGR3A+ Monocytes", # 4
    "CD14+ Monocytes", # 5
@@ -273,17 +275,40 @@ for (i in cluster_columns) {
    )
 
   names(new.cluster.ids) <- levels(gex_data_subset)
+  # names(new.cluster.ids) <- rev(c(
+  #   5, 6, 4, 1, 2, 3, 14,
+  #   18, 17, 16, 15,
+  #   7, 8, 9, 10, 13,
+  #   11, 12
+  # ))
+  
   gex_data_subset <- RenameIdents(gex_data_subset, new.cluster.ids)
   
+  monocyteComparison <- FindMarkers(gex_data_subset,
+                           ident.1 = "Unknown",
+                           ident.2 = "Non-classical Monocytes", ident.3 = "FCGR3A+ Monocytes", ident.4 = "CD14+ Monocytes")
+  monocyteComparison <- monocyteComparison[monocyteComparison$p_val_adj < 0.05,]
+  monocyteComparison <- monocyteComparison[monocyteComparison$avg_log2FC > 0,]
+  
+  monocyteComparison <- monocyteComparison %>% arrange(desc(avg_log2FC))# %>% slice_head(n = 15)
+  
+  bcellComparison <- FindMarkers(gex_data_subset,
+                           ident.1 = "Unknown",
+                           ident.2 = "Plasma B Cells", ident.3 = "Activated B Cells", ident.4 = "Resting Naive B Cells", ident.4 = "Transitional B Cells")
+  bcellComparison <- bcellComparison[bcellComparison$p_val_adj < 0.05,]
+  bcellComparison <- bcellComparison[bcellComparison$avg_log2FC > 0,]
+  
+  bcellComparison <- bcellComparison %>% arrange(desc(avg_log2FC))#  %>% slice_head(n = 15)
+  
   # Subset gex_data_subset to only include the clusters you want to plot
-  gex_data_subset <- subset(gex_data_subset, idents = new.cluster.ids[clusters_to_plot])
-  ####
+  # gex_data_subset <- subset(gex_data_subset, idents = new.cluster.ids[clusters_to_plot])
+  ###
   
   print(DotPlot(gex_data_subset, features = known_markers, scale = FALSE) +
     ggtitle(i) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)))
   
-  print(DimPlot(gex_data_subset, reduction = paste0("UMAP_Combined_", counter), label = TRUE)) + ggtitle(paste0(i, "  - UMAP"))
+  print(DimPlot(gex_data_subset, reduction = paste0("UMAP_Combined_", counter), label = TRUE, label.size = 5)) + ggtitle(paste0(i, "  - UMAP"))
   counter <- counter + 1
   
   # diff_markers <- FindMarkers(gex_data_subset, ident.1 = "Trm", ident.2 = "Tcm", ident.3 = "GdT Cells", ident.4 = "Th1/Th17 Cells", min.pct = 0.25)
@@ -296,7 +321,37 @@ for (i in cluster_columns) {
     end_index <- min(i + group_size - 1, known_markers_length)
     print(FeaturePlot(gex_data_subset, features = known_markers[c(i:end_index)]))
   }
+  
+  print(VlnPlot(gex_data_subset, features = "nFeature_RNA", idents = new.cluster.ids))  
+  
+  print("Monocyte comparison, p < 0.05, top 15")
+  for (i in rownames(monocyteComparison)) {cat(c(i, "\n"))}
+  print("B Cell comparison, p < 0.05, top 15")
+  for (i in rownames(bcellComparison)) {cat(c(i, "\n"))}
 }
 dev.off()
 
+seurat_clusters <- data.frame(gex_data_subset@active.ident)
 
+sorted_metadata <- seurat_clusters[match(archR_project$cellNames, rownames(seurat_clusters)),]
+
+sorted_metadata <- as.character(sorted_metadata)
+
+# Add the cluster labels to the ArchR object
+archR_project <- addCellColData(
+  ArchRProj = archR_project, 
+  data = sorted_metadata,
+  cells = archR_project$cellNames,
+  name = "SeuratCluster",
+  force = TRUE
+)
+
+
+plotEmbedding(
+  ArchRProj = archR_project, 
+  colorBy = "cellColData",
+  name = "SeuratCluster",
+  embedding = "UMAP_Combined_1"
+)
+
+saveArchRProject(archR_project, "saves/labeled", load = FALSE, overwrite = TRUE)

@@ -1,10 +1,11 @@
 library(dplyr)
+library(tibble)
 library(tidyr)
 
 # Load data
 data <- read.csv("results/average_data.csv", row.names = 1)
 
-# First conver rownames to a column named cluster, then extract the values of each param and create a column for each.
+# First convert rownames to a column named cluster, then extract the values of each param and create a column for each.
 data <- data %>%
   rownames_to_column(var = "cluster") %>%
   mutate(
