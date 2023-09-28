@@ -145,6 +145,8 @@ args = commandArgs(trailingOnly=TRUE)
 archR_project_path = args[1]
 
 archR_project <- loadArchRProject("saves/clustered")
+saveArchRProject(ArchRProj = archR_project, outputDirectory = "saves/labeled", load = FALSE, overwrite = TRUE)
+
 gex_data <- Read10X_h5("data/pbmc_unsorted_10k_filtered_feature_bc_matrix.h5")
 seurat_project <- CreateSeuratObject(counts = gex_data$`Gene Expression`)
 
@@ -241,6 +243,8 @@ for (embedding_name in umap_combined_embeddings) {
 
 }
 
+saveArchRProject(ArchRProj = archR_project, outputDirectory = "saves/labeled", load = FALSE, overwrite = TRUE)
+
 
 counter <- 1
 
@@ -284,21 +288,21 @@ for (i in cluster_columns) {
   
   gex_data_subset <- RenameIdents(gex_data_subset, new.cluster.ids)
   
-  monocyteComparison <- FindMarkers(gex_data_subset,
-                           ident.1 = "Unknown",
-                           ident.2 = "Non-classical Monocytes", ident.3 = "FCGR3A+ Monocytes", ident.4 = "CD14+ Monocytes")
-  monocyteComparison <- monocyteComparison[monocyteComparison$p_val_adj < 0.05,]
-  monocyteComparison <- monocyteComparison[monocyteComparison$avg_log2FC > 0,]
-  
-  monocyteComparison <- monocyteComparison %>% arrange(desc(avg_log2FC))# %>% slice_head(n = 15)
-  
-  bcellComparison <- FindMarkers(gex_data_subset,
-                           ident.1 = "Unknown",
-                           ident.2 = "Plasma B Cells", ident.3 = "Activated B Cells", ident.4 = "Resting Naive B Cells", ident.4 = "Transitional B Cells")
-  bcellComparison <- bcellComparison[bcellComparison$p_val_adj < 0.05,]
-  bcellComparison <- bcellComparison[bcellComparison$avg_log2FC > 0,]
-  
-  bcellComparison <- bcellComparison %>% arrange(desc(avg_log2FC))#  %>% slice_head(n = 15)
+  # monocyteComparison <- FindMarkers(gex_data_subset,
+  #                          ident.1 = "Unknown",
+  #                          ident.2 = "Non-classical Monocytes", ident.3 = "FCGR3A+ Monocytes", ident.4 = "CD14+ Monocytes")
+  # monocyteComparison <- monocyteComparison[monocyteComparison$p_val_adj < 0.05,]
+  # monocyteComparison <- monocyteComparison[monocyteComparison$avg_log2FC > 0,]
+  # 
+  # monocyteComparison <- monocyteComparison %>% arrange(desc(avg_log2FC))# %>% slice_head(n = 15)
+  # 
+  # bcellComparison <- FindMarkers(gex_data_subset,
+  #                          ident.1 = "Unknown",
+  #                          ident.2 = "Plasma B Cells", ident.3 = "Activated B Cells", ident.4 = "Resting Naive B Cells", ident.4 = "Transitional B Cells")
+  # bcellComparison <- bcellComparison[bcellComparison$p_val_adj < 0.05,]
+  # bcellComparison <- bcellComparison[bcellComparison$avg_log2FC > 0,]
+  # 
+  # bcellComparison <- bcellComparison %>% arrange(desc(avg_log2FC))#  %>% slice_head(n = 15)
   
   # Subset gex_data_subset to only include the clusters you want to plot
   # gex_data_subset <- subset(gex_data_subset, idents = new.cluster.ids[clusters_to_plot])
@@ -331,6 +335,8 @@ for (i in cluster_columns) {
 }
 dev.off()
 
+saveArchRProject(ArchRProj = archR_project, outputDirectory = "saves/labeled", load = FALSE, overwrite = TRUE)
+
 seurat_clusters <- data.frame(gex_data_subset@active.ident)
 
 sorted_metadata <- seurat_clusters[match(archR_project$cellNames, rownames(seurat_clusters)),]
@@ -354,4 +360,4 @@ plotEmbedding(
   embedding = "UMAP_Combined_1"
 )
 
-saveArchRProject(archR_project, "saves/labeled", load = FALSE, overwrite = TRUE)
+saveArchRProject(ArchRProj = archR_project, outputDirectory = "saves/labeled", load = FALSE, overwrite = TRUE)

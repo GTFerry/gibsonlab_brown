@@ -1,5 +1,10 @@
 library(ArchR)
 
+BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
+addArchRGenome("hg38")
+
+library(BSgenome.Hsapiens.UCSC.hg38)
+
 archR_project <- loadArchRProject("saves/labeled")
 
 print("Loaded Project. Starting Pseudo Bulk...")
@@ -21,6 +26,8 @@ archR_project <- addReproduciblePeakSet(
 )
 
 getPeakSet(archR_project)
+
+archR_project <- addPeakMatrix(archR_project)
 
 print("Peak Calling Finished. Saving...")
 
