@@ -9,6 +9,7 @@
 data/
 saves/
 tmp/
+Results/
 
 # ArchR Logs
 ArchRLogs/
